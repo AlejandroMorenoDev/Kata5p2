@@ -5,7 +5,11 @@
  */
 
 package kata5p2.view;
-import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import kata5p2.model.Mail;
 
@@ -19,22 +23,19 @@ public class MailListReader {
     
     
         
-    public static ArrayList <Mail> read(String fileName){
-        FileReader fl = null;
-        BufferedReader bf = null;
-                
+    public static ArrayList <Mail> read() throws SQLException, ClassNotFoundException{      
         ArrayList <Mail> emails = new ArrayList<>();
-        
-        try{
-            fl = new FileReader(fileName);
-            bf = new BufferedReader(fl);
-            String currentLine;
-            while((currentLine = bf.readLine()) != null){
-                Mail m = new Mail(currentLine);
-                emails.add(m);
+        Class.forName("org.sqlite.JDBC");
+        Connection conn = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\amct2\\Desktop\\asdad\\IS2\\Kata5\\KATAS.DB");
+        String query = "SELECT * FROM MAIL";
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery(query);
+        while(rs.next()){
+            if(!rs.getString("Mail").contains("@")){
+                continue;
             }
-        }catch (IOException e){
-            e.printStackTrace();
+            Mail m = new Mail(rs.getString("Mail"));
+            emails.add(m);
         }
         
         return emails;
